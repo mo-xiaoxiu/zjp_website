@@ -32,8 +32,8 @@ const config = {
   // useful metadata like html lang. For example, if your site is Chinese, you
   // may want to replace "en" with "zh-Hans".
   i18n: {
-    defaultLocale: 'zh-Hans',
-    locales: ['zh-Hans'],
+    defaultLocale: 'en',
+    locales: ['en'],
   },
 
   presets: [
@@ -41,6 +41,13 @@ const config = {
       'classic',
       /** @type {import('@docusaurus/preset-classic').Options} */
       ({
+		docs: {
+          sidebarPath: './sidebars.js',
+          // Please change this to your repo.
+          // Remove this to remove the "edit this page" links.
+          editUrl:
+           'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/',
+        },
         blog: {
           showReadingTime: true,
           feedOptions: {
@@ -74,9 +81,15 @@ const config = {
           src: 'img/logo.png',
         },
         items: [
-          {to: '/blog', label: 'Blog', position: 'left'},
+		  {to: '/blog', label: 'Home', position: 'left'},
+		  {
+            type: 'docSidebar',
+            sidebarId: 'tutorialSidebar',
+            position: 'left',
+            label: 'Blog',
+          },
           {
-            href: 'https://github.com/mo-xiaoxiu/zjp_website/',
+            href: 'https://github.com/mo-xiaoxiu/zjp_website',
             label: 'GitHub',
             position: 'right',
           },
