@@ -4,29 +4,29 @@ import styles from './styles.module.css';
 
 const FeatureList = [
   {
-    title: '书法小记',
-    Svg: require('@site/static/img/shufa.svg').default,
+    title: '编程记录',
+    Svg: require('@site/static/img/coding2.svg').default,
     description: (
       <>
-
+		Linux、C/C++等编程记录
       </>
     ),
   },
   {
     title: '个人思考',
-    Svg: require('@site/static/img/thinking.svg').default,
+    Svg: require('@site/static/img/thinking2.svg').default,
     description: (
       <>
-
+		小随笔
       </>
     ),
   },
   {
-    title: '编程记录',
-    Svg: require('@site/static/img/coding.svg').default,
+    title: '书法小记',
+    Svg: require('@site/static/img/shufa2.svg').default,
     description: (
       <>
-
+		书法的小作和欣赏
       </>
     ),
   },
