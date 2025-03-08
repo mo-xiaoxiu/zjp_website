@@ -5,7 +5,7 @@ import styles from './styles.module.css';
 const FeatureList = [
   {
     title: '书法小记',
-    Svg: require('@site/static/img/练书法.svg').default,
+    Svg: require('@site/static/img/shufa.svg').default,
     description: (
       <>
 
@@ -14,7 +14,7 @@ const FeatureList = [
   },
   {
     title: '个人思考',
-    Svg: require('@site/static/img/我的反思.svg').default,
+    Svg: require('@site/static/img/thinking.svg').default,
     description: (
       <>
 
@@ -23,7 +23,7 @@ const FeatureList = [
   },
   {
     title: '编程记录',
-    Svg: require('@site/static/img/编程.svg').default,
+    Svg: require('@site/static/img/coding.svg').default,
     description: (
       <>
 
