@@ -42,7 +42,8 @@ const config = {
       /** @type {import('@docusaurus/preset-classic').Options} */
       ({
 		docs: {
-          sidebarPath: './sidebars.js',
+          //sidebarPath: './sidebars.js',
+		  sidebarPath: require.resolve('./sidebars.js'),
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
           //editUrl:
@@ -81,14 +82,19 @@ const config = {
           src: 'img/logo.png',
         },
         items: [
-		  {to: '/blog/Home', label: 'Idea', position: 'left'},
+		  {to: '/blog', label: 'Idea', position: 'left'},
 		  {
             type: 'docSidebar',
             sidebarId: 'tutorialSidebar',
             position: 'left',
             label: 'Blog',
           },
-		  {to: '/blog/calligraphy', label: 'calligraphy', position: 'left'},
+		  {
+            type: 'docSidebar',
+            sidebarId: 'calligraphySidebar',
+            position: 'left',
+            label: 'calligraphy',
+          },
           {
             href: 'https://github.com/mo-xiaoxiu/zjp_website',
             label: 'GitHub',
