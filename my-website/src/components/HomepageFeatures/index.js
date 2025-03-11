@@ -11,7 +11,6 @@ const FeatureList = [
 		Linux、C/C++等编程记录
       </>
     ),
-	style: { width: '50px', height: '50px' },
   },
   {
     title: '个人思考',
@@ -21,7 +20,6 @@ const FeatureList = [
 		小随笔
       </>
     ),
-	style: { width: '100px', height: '100px' },
   },
   {
     title: '书法小记',
@@ -31,7 +29,6 @@ const FeatureList = [
 		书法的小作和欣赏
       </>
     ),
-	style: { width: '100px', height: '100px' },
   },
 ];
 

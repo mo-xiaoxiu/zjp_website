@@ -81,13 +81,14 @@ const config = {
           src: 'img/logo.png',
         },
         items: [
-		  {to: '/blog', label: 'Home', position: 'left'},
+		  {to: '/blog/Home', label: 'Idea', position: 'left'},
 		  {
             type: 'docSidebar',
             sidebarId: 'tutorialSidebar',
             position: 'left',
             label: 'Blog',
           },
+		  {to: '/blog/calligraphy', label: 'calligraphy', position: 'left'},
           {
             href: 'https://github.com/mo-xiaoxiu/zjp_website',
             label: 'GitHub',
