@@ -5,7 +5,7 @@ import styles from './styles.module.css';
 const FeatureList = [
   {
     title: '编程记录',
-    Svg: require('@site/static/img/coding.svg').default,
+    Svg: require('@site/static/img/codeNote.svg').default,
     description: (
       <>
 		Linux、C/C++等编程记录
@@ -14,7 +14,7 @@ const FeatureList = [
   },
   {
     title: '个人思考',
-    Svg: require('@site/static/img/thinking3.svg').default,
+    Svg: require('@site/static/img/ownerThink.svg').default,
     description: (
       <>
 		小随笔
@@ -23,7 +23,7 @@ const FeatureList = [
   },
   {
     title: '书法小记',
-    Svg: require('@site/static/img/shufa3.svg').default,
+    Svg: require('@site/static/img/calligraphic.svg').default,
     description: (
       <>
 		书法的小作和欣赏
