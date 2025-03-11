@@ -110,8 +110,10 @@ const config = {
           },
           {
             href: 'https://github.com/mo-xiaoxiu/zjp_website',
-            label: 'GitHub',
+            //label: 'GitHub',
             position: 'right',
+			className: 'header-github-link',
+            'aria-label': 'GitHub repository',
           },
         ],
       },
