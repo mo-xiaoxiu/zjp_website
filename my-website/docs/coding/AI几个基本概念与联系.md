@@ -53,8 +53,6 @@
 
 ## 系统架构关系
 
-![](https://myblog-1308923350.cos.ap-guangzhou.myqcloud.com/img/mermaid-2025520 233011.png)
-
 架构说明：
 
 1. 系统Prompt初始化AI Agent的行为准则和能力边界
@@ -64,9 +62,11 @@
 5. MCP作为能力扩展层
 6. 工具和资源作为具体能力实现
 
-## 交互时序流程
 
-![](https://myblog-1308923350.cos.ap-guangzhou.myqcloud.com/img/mermaid-2025520 233115.png)
+
+![](https://myblog-1308923350.cos.ap-guangzhou.myqcloud.com/img/mermaid-2025520_233011.png)
+
+## 交互时序流程
 
 关键交互步骤：
 
@@ -79,6 +79,12 @@
    - 工具执行
    - 结果整合（遵循系统Prompt指导）
    - 响应生成
+
+
+
+![](https://myblog-1308923350.cos.ap-guangzhou.myqcloud.com/img/mermaid-2025520_233115.png)
+
+
 
 ## 典型工作流程示例
 
