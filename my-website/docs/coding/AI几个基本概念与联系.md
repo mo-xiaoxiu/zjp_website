@@ -48,17 +48,7 @@
 
 ## 2. 系统架构关系
 
-```mermaid
-graph TD
-    A[User] -->|用户Prompt| B(AI Agent)
-    S[系统配置] -->|系统Prompt| B
-    B -->|核心能力| F[AI大模型]
-    B -->|查询/调用| C[MCP]
-    C -->|提供| D[Tools]
-    C -->|提供| E[Resources]
-    F -->|增强| B
-    B -->|返回结果| A
-```
+![](https://myblog-1308923350.cos.ap-guangzhou.myqcloud.com/img/mermaid-2025520 233011.png)
 
 架构说明：
 1. 系统Prompt初始化AI Agent的行为准则和能力边界
@@ -70,31 +60,7 @@ graph TD
 
 ## 3. 交互时序流程
 
-```mermaid
-sequenceDiagram
-    participant System
-    participant User
-    participant Agent as AI Agent
-    participant Model as AI大模型
-    participant MCP
-    participant Tool as MCP Tool
-    
-    System->>Agent: 初始化系统Prompt
-    Agent->>Model: 加载行为准则
-    Model-->>Agent: 确认角色配置
-    Note right of Agent: 系统初始化完成
-    
-    User->>Agent: 提交用户Prompt
-    Agent->>Model: 解析用户意图(结合系统Prompt)
-    Model-->>Agent: 返回解析结果
-    Agent->>MCP: 查询可用工具(list_tools)
-    MCP-->>Agent: 返回工具列表
-    Agent->>Tool: 调用适当工具(call_tool)
-    Tool-->>Agent: 返回执行结果
-    Agent->>Model: 请求结果整合(遵循系统Prompt)
-    Model-->>Agent: 返回优化响应
-    Agent->>User: 生成最终响应
-```
+![](https://myblog-1308923350.cos.ap-guangzhou.myqcloud.com/img/mermaid-2025520 233115.png)
 
 关键交互步骤：
 1. 系统初始化阶段：
