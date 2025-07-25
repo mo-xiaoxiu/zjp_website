@@ -1,5 +1,7 @@
 # AI Text Assistant 项目架构文档
 
+> *github地址：[AITextAssistant-cpp](https://github.com/mo-xiaoxiu/AITextAssist-cpp)*
+
 ## 项目概述
 
 AI Text Assistant 是一个基于C++的智能文本助手，支持历史会话管理和长久记忆功能。项目采用分层架构设计，提供现代化的Web界面和RESTful API，同时兼容OpenAI API格式。
