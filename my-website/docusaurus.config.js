@@ -35,6 +35,10 @@ const config = {
     defaultLocale: 'en',
     locales: ['en'],
   },
+  
+  markdown: {
+    mermaid: true,
+  },
 
   presets: [
     [
@@ -81,6 +85,7 @@ const config = {
         explicitSearchResultPath: true,
       }),
     ],
+    "@docusaurus/theme-mermaid"
   ],
 
   themeConfig:
