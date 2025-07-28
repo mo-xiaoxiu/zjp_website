@@ -411,7 +411,6 @@ make
 
 ### 访问地址
 - **AI聊天界面**: http://localhost:3001/enhanced-chat.html
-- **调试页面**: http://localhost:3001/debug-conversations.html
 
 ## 总结
 
