@@ -1,7 +1,5 @@
 # Assistant设计
 
-我来为您绘制 Assistant 的详细类图和处理流程图。
-
 ## 1. Assistant 类图
 
 ```mermaid
