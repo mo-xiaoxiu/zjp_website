@@ -1,4 +1,4 @@
-# 📋 pkg-config文件介绍
+# pkg-config文件介绍
 
 ## **什么是pkg-config文件？**
 
