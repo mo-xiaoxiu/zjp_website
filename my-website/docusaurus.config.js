@@ -114,7 +114,7 @@ const config = {
             label: 'calligraphy',
           },
           {
-            href: 'https://github.com/mo-xiaoxiu/zjp_website',
+            href: 'https://github.com/mo-xiaoxiu',
             //label: 'GitHub',
             position: 'right',
 			className: 'header-github-link',
