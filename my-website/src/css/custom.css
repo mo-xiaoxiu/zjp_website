@@ -4,31 +4,74 @@
  * work well for content-centric websites.
  */
 
-/* You can override the default Infima variables here. */
+/* Brand palette & typography */
 :root {
-  --ifm-color-primary: #2e8555;
-  --ifm-color-primary-dark: #29784c;
-  --ifm-color-primary-darker: #277148;
-  --ifm-color-primary-darkest: #205d3b;
-  --ifm-color-primary-light: #33925d;
-  --ifm-color-primary-lighter: #359962;
-  --ifm-color-primary-lightest: #3cad6e;
+  /* Primary - 墨蓝雅灰 */
+  --ifm-color-primary: #1e3a8a;
+  --ifm-color-primary-dark: #1a347b;
+  --ifm-color-primary-darker: #182f71;
+  --ifm-color-primary-darkest: #13265b;
+  --ifm-color-primary-light: #2b50c7;
+  --ifm-color-primary-lighter: #3a63e0;
+  --ifm-color-primary-lightest: #5b7cf0;
+
   --ifm-code-font-size: 95%;
-  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.06);
+
+  --zjp-radius-lg: 14px;
+  --zjp-shadow-sm: 0 6px 20px rgba(2, 6, 23, 0.06);
+  --zjp-shadow-md: 0 12px 30px rgba(2, 6, 23, 0.12);
 }
 
-/* For readability concerns, you should choose a lighter palette in dark mode. */
+/* For readability concerns, prefer a lighter palette in dark mode. */
 [data-theme='dark'] {
-  --ifm-color-primary: #25c2a0;
-  --ifm-color-primary-dark: #21af90;
-  --ifm-color-primary-darker: #1fa588;
-  --ifm-color-primary-darkest: #1a8870;
-  --ifm-color-primary-light: #29d5b0;
-  --ifm-color-primary-lighter: #32d8b4;
-  --ifm-color-primary-lightest: #4fddbf;
-  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+  --ifm-color-primary: #60a5fa;
+  --ifm-color-primary-dark: #4f94f8;
+  --ifm-color-primary-darker: #3c82f6;
+  --ifm-color-primary-darkest: #2563eb;
+  --ifm-color-primary-light: #7cb7fb;
+  --ifm-color-primary-lighter: #93c5fd;
+  --ifm-color-primary-lightest: #bfdbfe;
+  --docusaurus-highlighted-code-line-bg: rgba(255, 255, 255, 0.06);
 }
 
+/* Typography */
+html, body {
+  font-family: 'Noto Sans SC', 'Microsoft Yahei', 'PingFang SC', 'Helvetica Neue', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Noto Serif SC', 'Songti SC', serif;
+  letter-spacing: 0.2px;
+}
+
+.markdown p {
+  line-height: 1.9;
+  letter-spacing: 0.1px;
+}
+
+/* Media */
+.markdown img, .markdown figure img {
+  border-radius: var(--zjp-radius-lg);
+  box-shadow: var(--zjp-shadow-sm);
+}
+
+/* Tables */
+.markdown table tr:nth-child(2n) {
+  background: rgba(0,0,0,0.02);
+}
+[data-theme='dark'] .markdown table tr:nth-child(2n) {
+  background: rgba(255,255,255,0.04);
+}
+
+/* Links */
+a:hover {
+  opacity: 0.9;
+}
+
+/* Header GitHub icon */
 .header-github-link:hover {
   opacity: 0.6;
 }

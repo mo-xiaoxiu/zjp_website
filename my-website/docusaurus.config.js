@@ -125,8 +125,31 @@ const config = {
       footer: {
         style: 'dark',
         links: [
+          {
+            title: '网站',
+            items: [
+              {label: '首页', to: '/'},
+              {label: '博客主页', to: '/blog/info'},
+              {label: '编程文档', to: '/docs/coding/AI和大模型应用开发/AI几个基本概念与联系'},
+              {label: '书法专题', to: '/docs/calligraphy/雨后天晴'},
+            ],
+          },
+          {
+            title: '技术',
+            items: [
+              {label: 'Linux', to: '/docs/coding/Linux探索和记录/Linux函数调用栈打印方案'},
+              {label: 'C++', to: '/docs/coding/C++探索和记录/C++Singleton对象模型探索'},
+              {label: 'AI', to: '/docs/coding/AI和大模型应用开发/lesson 1 快速开始'},
+            ],
+          },
+          {
+            title: '联系',
+            items: [
+              {label: 'GitHub', href: 'https://github.com/mo-xiaoxiu'},
+            ],
+          },
         ],
-        copyright: `Copyright © ${new Date().getFullYear()} My Project, Inc. Built with Docusaurus.`,
+        copyright: `© ${new Date().getFullYear()} ZJP. All rights reserved.`,
       },
       prism: {
         theme: prismThemes.github,

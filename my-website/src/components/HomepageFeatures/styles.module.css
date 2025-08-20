@@ -9,3 +9,16 @@
   height: 200px;
   width: 200px;
 }
+
+.featureCard {
+  background: var(--ifm-background-surface-color);
+  border-radius: 14px;
+  padding: 1.25rem 0.75rem;
+  transition: transform 240ms ease, box-shadow 240ms ease;
+  box-shadow: 0 6px 20px rgba(2, 6, 23, 0.06);
+}
+
+.featureCard:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 12px 30px rgba(2, 6, 23, 0.12);
+}
