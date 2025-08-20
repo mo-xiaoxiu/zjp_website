@@ -61,4 +61,8 @@
 
 ---
 
+以下是我的个人公众号，持续更新，感谢关注！
+
+![](https://myblog-1308923350.cos.ap-guangzhou.myqcloud.com/img/qrcode_for_gh_51e3b5897433_258.jpg)
+
 *「在代码的世界里寻找逻辑之美，在书法的墨香中感受文化之韵」*
