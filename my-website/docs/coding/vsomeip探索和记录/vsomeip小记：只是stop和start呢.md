@@ -432,10 +432,10 @@ void application_impl::stop() {
 
 可以看下关键部分：
 
-对于start接口来说：
+对于start接口来说，
 
 * 如果io线程停止，则重新开始
-* 会加锁判断此时是否stop的状态，如果是，则会通知stop所在线程先阻塞stop之后就返回了
+* 会加锁判断此时是否stop的状态，如果是，则会通知stop所在线程先把stop执行完不阻塞在原处之后就返回了
 * 在后面会**开启路由管理器**
 
 路由管理器的start的操作：
@@ -547,9 +547,9 @@ void application_impl::shutdown() {
 
 * 调用`app_->stop`的时候调用`routing_->stop`，且会把stop标志位置为true
 * `routing_->stop`最终会调用sd组件的stop和`stub_->stop`，导致停发offer服务
-* 再次调用`app_->start`，判断stop标志位是否为true；此时判断为true，所以告诉调用stop的线程先等待，然后无其他动作直接返回
+* 再次调用`app_->start`，判断stop标志位是否为true；此时判断为true，所以告诉调用stop的线程无需继续阻塞等待了
 * 没有重新启动`routing_`，导致再次调用`app_->start`时没有再次按照规则发送offer服务
 
-> 虽然sd组件层和routing路由管理器层都有做接口部分相应的解耦，但是application这部分还有有一些调用依赖的。
+> 虽然sd组件层和routing路由管理器层都有做接口部分相应的解耦，但是application这部分还是有一些调用依赖的。
 
 **最好是严格按照调用示例调用。**
