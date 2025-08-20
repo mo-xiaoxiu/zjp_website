@@ -100,18 +100,18 @@ const config = {
           src: 'img/logo.png',
         },
         items: [
-		  {to: '/blog', label: 'Idea', position: 'left'},
+		  {to: '/blog', label: '主页', position: 'left'},
 		  {
             type: 'docSidebar',
             sidebarId: 'tutorialSidebar',
             position: 'left',
-            label: 'Blog',
+            label: '编程博客',
           },
 		  {
             type: 'docSidebar',
             sidebarId: 'calligraphySidebar',
             position: 'left',
-            label: 'calligraphy',
+            label: '书法',
           },
           {
             href: 'https://github.com/mo-xiaoxiu',
