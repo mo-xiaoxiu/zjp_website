@@ -112,7 +112,7 @@ int main() {
 
 * 我们在项目中要使用Thread组件，必须要将自己的线程类（即需要在线程中执行任务的类）继承于它
 * 必须重写`threadLoop`方法，并确定实现的最后是返回`true`还是`false`，来决定Thread是否要执行下一个循环
-* 在使用线程类对象调用对应的方法如`run`等之前，使用的是`sp<>`强指针的方式
+* 在使用Thread对象进行调用的时候，使用的是`sp<>`强指针的方式
 
 ## Thread源码分析
 
@@ -393,7 +393,7 @@ inline void Condition::broadcast() {
   * 该属性需在 `pthread_cond_init()` 时通过 `pthread_condattr_t` 设置；初始化后不能更改
 * 其他的都是封装pthread标准接口，可以看下`waitRelative`：
   * 使用`clock_gettime(CLOCK_MONOTONIC, ...)`构造超时时刻（linux系统）
-  * **将“相对超时时间”`reltime`（纳秒）转换为与 `CLOCK_MONOTONIC` 同源的“绝对超时点”`timespec ts`，并尽量避免整数溢出，最后用于 `pthread_cond_timedwait()`**，注释也说明了，对于32位系统来说，tv_sec是32位的，对于64位系统来说，tv_sec是64位的，所以使用`int64_t`来兼容；然后对纳秒的进位做处理，这里做了一次防止溢出的判断；后面转为`long`的时候再做了一次防止溢出判断
+  * **将“相对超时时间”`reltime`（纳秒）转换为与 `CLOCK_MONOTONIC` 同源的“绝对超时点”`timespec ts`，并尽量避免整数溢出，最后用于 `pthread_cond_timedwait()`**，注释也说明了，所以使用`int64_t`来兼容；然后对纳秒的进位做处理，这里做了一次防止溢出的判断；后面转为`long`的时候再做了一次防止溢出判断
   * 最后调用`pthread_cond_timewait`
 
 在看源码的时候还是会被这些小细节吸引住。不过我们分析源码的目的就是在于此。接下来继续看Thread。
@@ -517,9 +517,9 @@ int androidCreateRawThreadEtc(android_thread_func_t entryFunction,
 
 我们这里不看Android的处理代码，关注一下这个：
 
-* `libutil_thread_data* pthread_arg = new libutil_thread_data;`：使用了一个`libutil_thread)data`来作为`pthread_create`的数据媒介，线程执行的任务是`libutil_thread_trampoline`
+* `libutil_thread_data* pthread_arg = new libutil_thread_data;`：使用了一个`libutil_thread_data`来作为`pthread_create`的数据媒介，线程执行的任务是`libutil_thread_trampoline`
 
-这里我们可以大致猜想`libutil_thread_trampoline`执行的时候，会将我们传进入`entryFunction`的`_threadLoop`和参数，即`this`作为线程任务执行
+这里我们可以大致猜想`libutil_thread_trampoline`执行的时候，会将我们传进入`entryFunction`的`_threadLoop`和参数，即`this`指针，作为线程任务执行
 
 ```cpp
 static void* _Nonnull libutil_thread_trampoline(void* _Nonnull arg) {
@@ -604,20 +604,18 @@ int Thread::_threadLoop(void* user)
 进来先判断是否是第一次执行线程任务：
 
 * 如果不是，则直接调用派生类的`threadLoop`，即用户继承的时候，重写的`threadLoop`
-* 如果是，则先调用`readyToRun`，然后判断刚才看到的`status`和退出标志位为false都ok的情况下执行用户继承重写的`threadLoop`
+* 如果是，则先调用`readyToRun`，然后判断刚才看到的`status`和退出标志位为false都ok的情况下，执行用户继承重写的`threadLoop`
 
 > 问：这里为什么要对第一次进入线程任务执行做这样的判断呢？
 >
-> 答：**保证“至少执行一次”线程主体**
-> 若初始化成功且未被要求退出，立刻调用一次 `threadLoop()`。注释中特别提到 Binder 线程依赖这一点：`readyToRun()`成功后必须至少进入一次`threadLoop()`
->
-> 常见用法是 `new ThreadSubclass()->run();` 调用者不持有强引用，如果不确保第一次就进入 `threadLoop()`，线程可能在初始化完成后很快结束，未真正“跑起来”。
+> 答：**保证“至少执行一次”线程主体**。若初始化成功且未被要求退出，立刻调用一次 `threadLoop()`。注释中特别提到 Binder 线程依赖这一点：`readyToRun()`成功后必须至少进入一次`threadLoop()`。常见用法是 `new ThreadSubclass()->run();` 调用者不持有强引用，如果不确保第一次就进入 `threadLoop()`，线程可能在初始化完成后很快结束，未真正“跑起来”。
+> 
 
 之后加锁判断：
 
-* 如果我们前面`readyToRun`没有成功，或此时为退出状态，则调用`mThreadExitedCondition.broadcast()`广播通知调用Thread的（主）线程，此时的Thread线程执行完最后一次准备退出，不用阻塞等待了，可以继续执行后续代码；且退出此时在`_threadLoop`中的循环
+* 如果我们前面`readyToRun`没有成功，或此时为退出状态，则调用`mThreadExitedCondition.broadcast()`广播通知调用Thread的（主）线程，此时的Thread线程执行完最后一次准备退出，调用者不用阻塞等待了，可以继续执行后续代码；Thread退出此时在`_threadLoop`中的循环
 
-如果一切正常的话，会走到这两句代码：
+如果线程正常运行的话，会走到这两句代码：
 
 ```cpp
         // Release our strong reference, to let a chance to the thread
@@ -637,7 +635,7 @@ int Thread::_threadLoop(void* user)
 
 
 
-看完`run`之后，我们该如何停止Thread的运行呢？既然在每次循环的时候，如果我们设置了退出状态，那我们肯定是需要对`condition`进行等待的。前面提到，我们可以使用`join`、`requestExit`和`requestExitAndWait`这几个接口来完成。接下来让我们一睹为快：
+看完`run`之后，我们该如何停止Thread的运行呢？既然在每次循环的时候，如果我们设置了退出状态，那Thread就会在`_threadLoop`中广播`condition`，我们就需要对`condition`进行等待的。前面提到，我们可以使用`join`、`requestExit`和`requestExitAndWait`这几个接口来完成。接下来让我们一睹为快：
 
 ```cpp
 status_t Thread::join()
@@ -663,8 +661,8 @@ status_t Thread::join()
 
 我们先来看下`join`：
 
-* 首先判断当前调用join的线程是不是和Thread是不是同一个，如果是就说明错误调用了，在Thread内不能调这个，这个是在调用Thread子线程的（主）线程调用的
-* 接下来就是对`condition`的等待，直到在`_threadLoop`的循环中，将运行标志位置为false，就是在退出线程任务的时候
+* 首先判断当前调用join的线程和Thread是不是同一个，如果是就说明错误调用了，在Thread内不能调这个，这个是在调用Thread子的（主）线程调用的
+* 接下来就是对`condition`的等待，直到在`_threadLoop`的循环中，在退出线程任务的时候将运行标志位置为false
 
 接下来看下剩下两个接口：
 
@@ -700,9 +698,8 @@ status_t Thread::requestExitAndWait()
 }
 ```
 
-对于`requestExit`来说，不需要等待Thread执行完成或退出，它只是将退出状态置上就可以继续往下执行了。
-
-对于`requestExitAndWait`来说，实现与`join`基本无二。最后的这行代码我理解没什么用，大家可以自己看注释。
+* 对于`requestExit`来说，不需要等待Thread执行完成或退出，它只是将退出状态置上就可以继续往下执行了。
+* 对于`requestExitAndWait`来说，实现与`join`基本无二。最后的这行代码我理解没什么用，大家可以自己看注释。
 
 
 
@@ -714,21 +711,25 @@ Thread的使用规则：
 
 * 使用Thread组件，需要将自己的线程类（即需要在线程中执行任务的类）继承于它
 * 必须重写`threadLoop`方法，并确定实现的最后是返回`true`还是`false`，来决定Thread是否要执行下一个循环
-* 在使用线程类对象调用对应的方法如`run`等之前，使用的是`sp<>`强指针的方式
+* 在使用Thread对象进行调用的时候，使用的是`sp<>`强指针的方式
 
 运行方式：
 
 * `run`：仅表示线程任务创建完成，并不代表线程任务执行成功
-* 最终结果看mStatus，还是得在`requestExitAndWait()或join()`返回时可靠获取
+* 最终结果看mStatus，还是得在`requestExitAndWait()或join()`返回时的可靠获取
 
 退出方式：
 
-* `requestExit`无需等待Thread执行完成，调用Thread所在线程可以继续往下执行
-* `join`和`requestExitAndWait`需要等待Thread完成或退出才可以继续往下执行
+* `requestExit`无需等待Thread执行完成，调用者可以继续往下执行
+* `join`和`requestExitAndWait`需要等待Thread完成或退出调用者才可以继续往下执行
 
 生命周期管理：
 
 * 每轮末尾 `strong.clear()` 后用 `weak.promote()` 决定是否继续循环；外界无强引用时，线程对象可“平和死亡”
+
+
+
+## 总体时序图
 
 ```mermaid
 sequenceDiagram
