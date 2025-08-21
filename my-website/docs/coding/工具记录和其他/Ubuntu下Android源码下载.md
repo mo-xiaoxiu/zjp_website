@@ -35,11 +35,11 @@ sudo apt install flex bison gperf libsdl2-dev libssl-dev libncurses5-dev
 ```shell
 mkdir ~/bin   # 文件夹可能本身就存在，可以cd看看
 PATH=~/bin:$PATH
-curl -sSL  'https://gerrit-googlesource.proxy.ustclug.org/git-repo/+/master/repo?format=TEXT' |base64 -d > ~/bin/repo
+curl -sSL 'https://gerrit-googlesource.proxy.ustclug.org/git-repo/+/master/repo?format=TEXT' | base64 -di > ~/bin/repo
 chmod a+x ~/bin/repo
 ```
 
-确保repo安装ok
+确保repo安装ok，显示类似输出
 
 ```shell
 repo --version
@@ -58,10 +58,14 @@ CPU x86_64 (x86_64)
 repo初始化
 
 ```shell
+# 设置 REPO_URL 环境变量指向清华镜像
+export REPO_URL='https://mirrors.tuna.tsinghua.edu.cn/git/git-repo'
+
+# 重新执行 repo init
 repo init -u https://aosp.tuna.tsinghua.edu.cn/platform/manifest -b android-14.0.0_r1
 ```
 
-显示如下输出：
+显示类似如下输出：
 
 ```shell
 /home/zjp2/bin/repo:635: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
