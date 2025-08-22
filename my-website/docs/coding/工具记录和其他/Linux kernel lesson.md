@@ -160,3 +160,85 @@
 >    Inactive(anon):   369024 kB
 >    
 >    ```
+
+
+
+## `/sys`
+
+* `sysfs`文件系统会在boot的时候挂载到`/sys`
+* `sysfs`表示内核对象信息（硬件信息，如PCI驱动信息）
+* `/sys/kernel/debugfs`
+* `/sys/kernel/tracing`
+* `/sys/module`内核可加载模块信息
+
+>问题：
+>
+>1. `lspci`从哪些文件获取信息?
+>	使用`strace-e openatlspci`查看
+>	
+>	```shell
+>	# 打开了/sys/bus/devices下的设备文件
+>	openat(AT_FDCWD, "/sys/bus/pci/devices/0000:00:00.0/vendor", O_RDONLY) = 4
+>	openat(AT_FDCWD, "/sys/bus/pci/devices/0000:00:00.0/device", O_RDONLY) = 4
+>	openat(AT_FDCWD, "/sys/bus/pci/devices/0000:00:00.0/class", O_RDONLY) = 4
+>	openat(AT_FDCWD, "/sys/bus/pci/devices/0000:00:17.1/config", O_RDONLY) = 3
+>	openat(AT_FDCWD, "/sys/bus/pci/devices/0000:00:17.1/vendor", O_RDONLY) = 4
+>	openat(AT_FDCWD, "/sys/bus/pci/devices/0000:00:17.1/device", O_RDONLY) = 4
+>	openat(AT_FDCWD, "/sys/bus/pci/devices/0000:00:17.1/class", O_RDONLY) = 4
+>	openat(AT_FDCWD, "/sys/bus/pci/devices/0000:00:0f.0/config", O_RDONLY) = 3
+>	openat(AT_FDCWD, "/sys/bus/pci/devices/0000:00:0f.0/vendor", O_RDONLY) = 4
+>	openat(AT_FDCWD, "/sys/bus/pci/devices/0000:00:0f.0/device", O_RDONLY) = 4
+>	openat(AT_FDCWD, "/sys/bus/pci/devices/0000:00:0f.0/class", O_RDONLY) = 4
+>	openat(AT_FDCWD, "/sys/bus/pci/devices/0000:00:15.4/config", O_RDONLY) = 3
+>	openat(AT_FDCWD, "/sys/bus/pci/devices/0000:00:15.4/vendor", O_RDONLY) = 4
+>	openat(AT_FDCWD, "/sys/bus/pci/devices/0000:00:15.4/device", O_RDONLY) = 4
+>	openat(AT_FDCWD, "/sys/bus/pci/devices/0000:00:15.4/class", O_RDONLY) = 4
+>	openat(AT_FDCWD, "/sys/bus/pci/devices/0000:00:18.6/config", O_RDONLY) = 3
+>	openat(AT_FDCWD, "/sys/bus/pci/devices/0000:00:18.6/vendor", O_RDONLY) = 4
+>	openat(AT_FDCWD, "/sys/bus/pci/devices/0000:00:18.6/device", O_RDONLY) = 4
+>	openat(AT_FDCWD, "/sys/bus/pci/devices/0000:00:18.6/class", O_RDONLY) = 4
+>	
+>	```
+>	
+>	
+>	
+>2. 根据`/sys/block`，你有块设备(磁盘)sda吗?如果有，你有sda分区的设备文件吗?有多少个?
+>
+>  ```shell
+>  cd /sys/block/ && ls -l sda*
+>  lrwxrwxrwx 1 root root 0  8月 18 11:23 sda -> ../devices/pci0000:00/0000:00:10.0/host32/target32:0:0/32:0:0:0/block/sda
+>  
+>  ```
+>
+>  
+>
+>3. 使用strace，命令`fdisk-l`(以root权限运行)是否打开了`/sys/block`下的任何文件?`/sys/dev/block`呢?
+>
+>  ```shell
+>  sudo strace -e openat -o strace_fdisk.out fdisk -l
+>  
+>  # 由于只有一个sda文件，所以在block下面其他sda打开失败了
+>  grep "/sys/block/sda" strace_fdisk.out
+>  openat(AT_FDCWD, "/sys/block/sda/dev", O_RDONLY|O_CLOEXEC) = 4
+>  openat(AT_FDCWD, "/sys/block/sda1/dev", O_RDONLY|O_CLOEXEC) = -1 ENOENT (没有那个文件或目录)
+>  openat(AT_FDCWD, "/sys/block/sda1/device/dev", O_RDONLY|O_CLOEXEC) = -1 ENOENT (没有那个文件或目录)
+>  openat(AT_FDCWD, "/sys/block/sda2/dev", O_RDONLY|O_CLOEXEC) = -1 ENOENT (没有那个文件或目录)
+>  openat(AT_FDCWD, "/sys/block/sda2/device/dev", O_RDONLY|O_CLOEXEC) = -1 ENOENT (没有那个文件或目录)
+>  openat(AT_FDCWD, "/sys/block/sda3/dev", O_RDONLY|O_CLOEXEC) = -1 ENOENT (没有那个文件或目录)
+>  openat(AT_FDCWD, "/sys/block/sda3/device/dev", O_RDONLY|O_CLOEXEC) = -1 ENOENT (没有那个文件或目录)
+>  
+>  # 还打开了/sys/dev下的很多文件
+>  grep "/sys/dev" strace_fdisk.out
+>  openat(AT_FDCWD, "/sys/dev/block/7:0", O_RDONLY|O_CLOEXEC) = 4
+>  openat(AT_FDCWD, "/sys/dev/block/7:0", O_RDONLY|O_CLOEXEC) = 4
+>  openat(AT_FDCWD, "/sys/dev/block/7:0", O_RDONLY|O_CLOEXEC) = 4
+>  openat(AT_FDCWD, "/sys/dev/block/7:0", O_RDONLY|O_CLOEXEC) = 5
+>  openat(AT_FDCWD, "/sys/dev/block/7:0", O_RDONLY|O_CLOEXEC) = 5
+>  openat(AT_FDCWD, "/sys/dev/block/7:0", O_RDONLY|O_CLOEXEC) = 5
+>  
+>  ```
+>
+>  
+
+
+
