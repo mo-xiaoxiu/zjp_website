@@ -39,8 +39,6 @@ sequenceDiagram
     end
 ```
 
-*浏览器打开此此文链接，mermaid图可以放大看*
-
 ## 同步解析
 
 前面我们说过，我这里使用DNS同步解析基类来定义基础方法，用DNS同步解析实现类来重写这些方法并扩展，当我们应用层继承这个DNS解析库后，在代码中调用`resolve`，实际上会调用我们重写的实现类方法，实现如下：
@@ -311,7 +309,7 @@ DnsResult DnsPacketSender::sendPacket(const std::string& server, uint16_t port,
   }
   ```
 
-  * 这里使用poll来管理数据连接，设置了poll的时间类型为`POLLIN`，并设置了超时时间，表示当这个连接上，超时时间内有数据可读时唤醒所在进程
+  * 这里使用poll来管理数据连接，设置了poll的事件类型为`POLLIN`，并设置了超时时间，表示当这个连接上，超时时间内有数据可读时唤醒所在进程并读取连接上的数据，如果超时时间内没有数据可读则返回空的vector
   * 后面调用`recv`将这个连接上的数据读取出来并调整大小
 
   这里你当然可以使用其他IO多路复用方式
@@ -392,11 +390,13 @@ DnsResult DnsPacketSender::sendPacket(const std::string& server, uint16_t port,
   }
   ```
 
-  解析数据部分就不再赘述了，看着注释也比较好理解。注意在发送数据和接收数据的封装部分，对于网络字节序的转换是必须的
+  解析数据部分就不再赘述了，看着注释也比较好理解。注意在发送数据和接收数据的封装部分，对于网络字节序的转换是必须的。
 
-  我们前面说了，对于用户自定义DNS数据包解析的方式，我们期望用户使用的是这个接口`resolveWithPacket`，接下来我们可以看看它的实现：
+  
 
-  ```cpp
+我们前面说了，对于用户自定义DNS数据包解析的方式，我们期望用户使用的是这个接口`resolveWithPacket`，接下来我们可以看看它的实现：
+
+```cpp
   DnsResult DnsResolverImpl::resolveWithPacket(const DnsPacket& packet) {
       DnsResult result;
       
@@ -412,11 +412,11 @@ DnsResult DnsPacketSender::sendPacket(const std::string& server, uint16_t port,
       return sender_->sendPacket(dns_server_, dns_port_, packet_data, timeout_ms_);
   }
   
-  ```
+```
 
-  主要是调用构建自定义数据包的方法`DnsPacketBuilder::buildCustomPacket`，之后和上面的构建默认DNS数据包解析的方式一样，调用`sender_->sendPacket`发送出去
+主要是调用构建自定义数据包的方法`DnsPacketBuilder::buildCustomPacket`，之后和上面的构建默认DNS数据包解析的方式一样，调用`sender_->sendPacket`发送出去
 
-  ```cpp
+```cpp
   std::vector<uint8_t> DnsPacketBuilder::buildCustomPacket(const DnsPacket& packet) {
       std::vector<uint8_t> data;
       
@@ -465,11 +465,11 @@ DnsResult DnsPacketSender::sendPacket(const std::string& server, uint16_t port,
       
       return data;
   }
-  ```
+```
 
-  我们可以看到这里比默认构建的过程还要多，是因为我们要用户自定义的数据包，那就说明我们支持更灵活地设置头部字段和各类记录内容
+我们可以看到这里比默认构建的过程还要多，是因为我们要用户自定义的数据包，那就说明我们支持更灵活地设置头部字段和各类记录内容
 
-  而默认构建的话，只包含一个问题、没有答案、权威和附加记录，且头部字段固定。这样的用户自定义数据包构建过程，更满足其他复杂的场景
+而默认构建的话，只包含一个问题、没有答案、权威和附加记录，且头部字段固定。这样的用户自定义数据包构建过程，更满足其他复杂的场景
 
 
 ## 异步解析
@@ -530,7 +530,7 @@ DnsResult DnsPacketSender::sendPacket(const std::string& server, uint16_t port,
       deactivate WT
 ```
 
-  可以看到，涉及到解析的具体流程我们是可以直接复用同步解析的处理的。我们这边主要看下异步解析器和其他模块的交互流程，以及对任务的存取、执行时如何实现的。首先看下构造函数：
+  可以看到，涉及到解析的具体流程我们是可以直接复用同步解析的处理的。我们这边主要看下异步解析器和其他模块的交互流程，以及对任务的存取、执行是如何实现的。首先看下构造函数：
 
 ```cpp
 AsyncDnsResolverImpl::AsyncDnsResolverImpl() : running_(false) {
@@ -672,7 +672,7 @@ void AsyncDnsResolverImpl::workerThread() {
 
 我们的工作线程是在一个大的while循环下进行的，其主要逻辑是：
 
-* 在工作线程运行时，如果工作队列为空，则等待任务添加到任务队列中，这里和前面添加任务队列之后，条件变量发出通知时呼应的，这里会接收到条件变量的通知并继续判断队列是不是空的，或者此时工作线程被期望在运行吗（running标志位）；如果工作线程在这里被唤醒后，判断任务队列不为空且还在运行，则我们取出任务队列的任务并执行任务
+* 在工作线程运行时，如果工作队列为空，则等待任务添加到任务队列中，这里和前面添加任务队列之后，条件变量发出通知是呼应的，这里会接收到条件变量的通知并继续判断队列是不是空的，或者此时工作线程被期望在运行吗（running标志位）；如果工作线程在这里被唤醒后，判断任务队列不为空且还在运行，则我们取出任务队列的任务并执行
 
 ```cpp
 void AsyncDnsResolverImpl::executeTask(Task& task) {
