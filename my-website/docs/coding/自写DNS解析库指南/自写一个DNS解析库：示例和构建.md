@@ -1,10 +1,11 @@
 # 自写一个DNS解析库：示例和构建
 
-前面的几篇文章以及把DNS解析库的框架、软件设计、类定义和接口实现等都介绍完成了，接下来我们需要更新一下库和代码的项目结构，以及构建编译、示例使用等。
+前面的几篇文章已经把DNS解析库的框架、软件设计、类定义和接口实现等都介绍完成了，接下来我们需要更新一下库和代码的项目结构，以及构建编译、示例使用等。
 
 ## 目录更新
 
 根据前面的设计和实现我们更新目录树如下：
+
 ```shell
 .
 ├── CMakeLists.txt
@@ -134,7 +135,7 @@ if(BUILD_SHARED_LIBS)
 
   * `OUTPUT_NAME`: 输出文件名为`zjpdns`，虽然目标名是 `zjpdns_shared`，但实际生成的文件名是 `libzjpdns.so`
 
-  * ``VERSION`: 完整版本号(1.0.0)，支持多版本共存
+  * `VERSION`: 完整版本号(1.0.0)，支持多版本共存
 
   * `SOVERSION`: 主版本号(1)，**创建符号链接 `libzjpdns.so.1 -> libzjpdns.so.1.0.0`**，程序运行时链接到 `libzjpdns.so.1`，在安装后会产生如下文件：
 
@@ -488,6 +489,7 @@ sudo make install
 ## 示例程序
 
 在示例程序中，展示了我们这个DNS解析库的各自使用方式：
+
 ```cpp
 #include "dns_parser.h"
 #include <iostream>
@@ -714,7 +716,7 @@ int main() {
 * `resolver->resolve(domain, zjpdns::DnsRecordType::A,zjpdns::ResolveMethod::DNS_PACKET);`使用默认DNS数据包方式解析
 * 自定义数据包同步解析
 
-异步解析
+异步解析：
 
 * `auto async_resolver = zjpdns::createAsyncDnsResolver();`创建异步解析器
 * 设置DNS服务器地址和超时时间
@@ -1136,4 +1138,4 @@ DNS records:
 
 ---
 
-自写DNS解析库系列完结。
+**自写DNS解析库系列完结**。
