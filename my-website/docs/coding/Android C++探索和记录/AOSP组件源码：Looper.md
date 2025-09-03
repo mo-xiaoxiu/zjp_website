@@ -42,5 +42,182 @@ AOSP 的 `Looper`是一个**高效的 I/O 多路复用器与消息调度器**。
 
 ## 源码分析
 
+我们首先来看下头文件，其中有几个数据结构需要澄清：
 
+```cpp
+typedef int (*Looper_callbackFunc)(int fd, int events, void* data);
+
+/**
+ * A message that can be posted to a Looper.
+ */
+struct Message {
+    Message() : what(0) { }
+    Message(int w) : what(w) { }
+
+    /* The message type. (interpretation is left up to the handler) */
+    int what;
+};
+```
+
+* `Looper_callbackFunc`Lopper的回调函数类型
+* `Message`供Looper使用的消息结构
+
+```cpp
+class MessageHandler : public virtual RefBase {
+protected:
+    virtual ~MessageHandler();
+
+public:
+    /**
+     * Handles a message.
+     */
+    virtual void handleMessage(const Message& message) = 0;
+};
+```
+
+需要用户重写实现`handleMessage`的`MessageHandler`：`handleMessage`用于获取消息之后的处理
+
+```cpp
+/**
+ * A simple proxy that holds a weak reference to a message handler.
+ */
+class WeakMessageHandler : public MessageHandler {
+protected:
+    virtual ~WeakMessageHandler();
+
+public:
+    WeakMessageHandler(const wp<MessageHandler>& handler);
+    virtual void handleMessage(const Message& message);
+
+private:
+    wp<MessageHandler> mHandler;
+};
+```
+
+`WeakMessageHandler`相当于`MessageHandler`的弱引用，其中有个`wp`类型为`MessageHandler`的成员mHandler，用于把持`MessageHandler`的弱引用
+
+```cpp
+class LooperCallback : public virtual RefBase {
+protected:
+    virtual ~LooperCallback();
+
+public:
+    /**
+     * Handles a poll event for the given file descriptor.
+     * It is given the file descriptor it is associated with,
+     * a bitmask of the poll events that were triggered (typically EVENT_INPUT),
+     * and the data pointer that was originally supplied.
+     *
+     * Implementations should return 1 to continue receiving callbacks, or 0
+     * to have this file descriptor and callback unregistered from the looper.
+     */
+    virtual int handleEvent(int fd, int events, void* data) = 0;
+};
+```
+
+处理**指定文件描述符**的轮询事件：
+
+* 接收与其关联的文件描述符、已触发的轮询事件的位掩码（通常是 EVENT_INPUT）、以及数据指针
+
+```cpp
+class SimpleLooperCallback : public LooperCallback {
+protected:
+    virtual ~SimpleLooperCallback();
+
+public:
+    SimpleLooperCallback(Looper_callbackFunc callback);
+    virtual int handleEvent(int fd, int events, void* data);
+
+private:
+    Looper_callbackFunc mCallback;
+};
+```
+
+封装前面的`Looper_callbackFunc`类型：通过`Looper_callbackFunc` + `LooperCallback`包装成一个简单的指定文件描述符的轮询事件器。应该是为了方便用户使用。
+
+以上这些结构和类型都是服务于消息传输和任务执行的，接下来看下`Looper`的声明
+
+```cpp
+class Looper : public RefBase {
+protected:
+    virtual ~Looper();
+
+public:
+    enum {
+        /**
+         * Result from Looper_pollOnce() and Looper_pollAll():
+         * The poll was awoken using wake() before the timeout expired
+         * and no callbacks were executed and no other file descriptors were ready.
+         */
+        POLL_WAKE = -1,
+
+        /**
+         * Result from Looper_pollOnce() and Looper_pollAll():
+         * One or more callbacks were executed.
+         */
+        POLL_CALLBACK = -2,
+
+        /**
+         * Result from Looper_pollOnce() and Looper_pollAll():
+         * The timeout expired.
+         */
+        POLL_TIMEOUT = -3,
+
+        /**
+         * Result from Looper_pollOnce() and Looper_pollAll():
+         * An error occurred.
+         */
+        POLL_ERROR = -4,
+    };
+};
+```
+
+`POLL_WAKE`，`POLL_CALLBACK`，`POLL_TIMEOUT`，`POLL_ERROR`都是`pollOnce`和`pollAll`的返回值类型，对应着不同的处理
+
+```cpp
+class Looper: public Refbase {
+public:
+    enum {
+        /**
+         * The file descriptor is available for read operations.
+         */
+        EVENT_INPUT = 1 << 0,
+
+        /**
+         * The file descriptor is available for write operations.
+         */
+        EVENT_OUTPUT = 1 << 1,
+
+        /**
+         * The file descriptor has encountered an error condition.
+         *
+         * The looper always sends notifications about errors; it is not necessary
+         * to specify this event flag in the requested event set.
+         */
+        EVENT_ERROR = 1 << 2,
+
+        /**
+         * The file descriptor was hung up.
+         * For example, indicates that the remote end of a pipe or socket was closed.
+         *
+         * The looper always sends notifications about hangups; it is not necessary
+         * to specify this event flag in the requested event set.
+         */
+        EVENT_HANGUP = 1 << 3,
+
+        /**
+         * The file descriptor is invalid.
+         * For example, the file descriptor was closed prematurely.
+         *
+         * The looper always sends notifications about invalid file descriptors; it is not necessary
+         * to specify this event flag in the requested event set.
+         */
+        EVENT_INVALID = 1 << 4,
+    };
+};
+```
+
+以上注释也说明了枚举的用处，主要是文件描述符的事件类型
+
+接下来我们可以移步到源文件看看各个函数的实现。
 
